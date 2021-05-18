@@ -8,11 +8,12 @@ import (
 )
 
 func main() {
-    u, _ := url.Parse(os.Getenv("UPSTREAM_SERVER"))
     proxy := &httputil.ReverseProxy{
         Director: func(req *http.Request) {
-	    u.Path = u.Path + req.URL.Path
+            u, _ := url.Parse(os.Getenv("UPSTREAM_SERVER"))
+	    p := u.Path + req.URL.Path
 	    req.URL = u
+	    req.URL.Path = p
             req.Host = u.Host
         },
     }
