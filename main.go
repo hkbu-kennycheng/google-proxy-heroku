@@ -9,8 +9,12 @@ import (
 
 func main() {
     u, _ := url.Parse(os.Getenv("UPSTREAM_SERVER"))
-    http.Handle("/", httputil.NewSingleHostReverseProxy(u))
- 
-    // Start the server
-    http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+    proxy := &httputil.ReverseProxy{
+        Director: func(req *http.Request) {
+	    u.Path = u.Path + req.URL.Path
+	    req.URL = u
+            req.Host = u.Host
+        },
+    }
+    http.ListenAndServe(":"+os.Getenv("PORT"), proxy)
 }
